@@ -1,11 +1,11 @@
-Role Name
-=========
+ansible-freeipa-testing
+=======================
 
 This role provisions a VM to run [FreeIPA tests](http://www.freeipa.org/page/Testing).
 It might be useful for those who want to focus on the testing process itself,
 and not on the process of setting up a testing environment.
 
-*WARNING!* The role will *erase* existing FreeIPA completely, don't run it on
+**WARNING!** The role will **erase** existing FreeIPA completely, don't run it on
 production systems!
 
 Role Variables
@@ -37,22 +37,24 @@ Usage
 - install Ansible
 - create inventory file, playbook and install the role:
 
-    mkdir -p ~/freeipa-testing
-    pushd ~/freeipa-testing
-    cat > hosts<<EOF
-    [test-vms]
-    some.test.vm.hostname
-    other.vm.hostname
-    192.168.5.11
-    EOF
-    cat > site.yml<<EOF
-    - hosts: test-vms
-      roles:
-         - { role: ansible-freeipa-test, freeipa_domain: "example.dom" }
-    EOF
-    mkdir roles/
-    git clone git://github.com/br0ziliy/ansible-freeipa-test.git roles/ansible-freeipa-test
-    popd
+```bash
+mkdir -p ~/freeipa-testing
+pushd ~/freeipa-testing
+cat > hosts<<EOF
+[test-vms]
+some.test.vm.hostname
+other.vm.hostname
+192.168.5.11
+EOF
+cat > site.yml<<EOF
+- hosts: test-vms
+  roles:
+     - { role: ansible-freeipa-test, freeipa_domain: "example.dom" }
+EOF
+mkdir roles/
+git clone git://github.com/br0ziliy/ansible-freeipa-test.git roles/ansible-freeipa-test
+popd
+```
 
 - make adjustments to `hosts` and `site.yml` files to fit your environment
 - run the playbook:
