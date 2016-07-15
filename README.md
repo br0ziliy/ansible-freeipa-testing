@@ -49,10 +49,10 @@ EOF
 cat > site.yml<<EOF
 - hosts: test-vms
   roles:
-     - { role: ansible-freeipa-test, freeipa_domain: "example.dom" }
+     - { role: ansible-freeipa-testing, freeipa_domain: "example.dom" }
 EOF
 mkdir roles/
-git clone git://github.com/br0ziliy/ansible-freeipa-test.git roles/ansible-freeipa-test
+git clone https://github.com/br0ziliy/ansible-freeipa-testing.git roles/ansible-freeipa-testing
 popd
 ```
 
