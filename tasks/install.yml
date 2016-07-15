@@ -1,0 +1,36 @@
+---
+- name: Get (or update) FreeIPA sources
+  git:
+    dest: "{{ freeipa_src_dir }}"
+    force: yes
+    repo: "{{ freeipa_git_url }}"
+    version: "{{ freeipa_git_revision }}"
+
+- name: Ensure old RPMs and build directory absent
+  file:
+    name: "{{ freeipa_src_dir }}/{{ item }}"
+    state: absent
+  with_items:
+    - dist/
+    - rpmbuild/
+
+- name: Install dependencies
+  command: "dnf builddep --spec {{ freeipa_src_dir }}/freeipa.spec.in -y"
+  become: True
+
+- name: Build FreeIPA RPMs
+  command: make rpms
+  args:
+    chdir: "{{ freeipa_src_dir }}"
+    creates: "{{ freeipa_src_dir }}/dist/rpms"
+
+- name: Install built RPMs
+  dnf:
+    name: "{{ freeipa_src_dir }}/dist/rpms/*"
+    state: installed
+  become: True
+
+- name: Install FreeIPA itself
+  command: "ipa-server-install {{ freeipa_install_params }}"
+  become: True
+

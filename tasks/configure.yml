@@ -1,0 +1,75 @@
+---
+# http://www.freeipa.org/page/Testing#Configure
+
+- name: Ensure ~/.ipa directory exists
+  file:
+    name: "{{ ansible_env.HOME }}/.ipa"
+    state: directory
+    mode: 0700
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+
+- name: Ensure needed directories under ~/.ipa exists
+  file:
+    name: "{{ ansible_env.HOME }}/.ipa/{{ item }}"
+    state: directory
+    mode: 0700
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+  with_items:
+    - alias
+  become: True
+
+- name: Copy /etc/ipa/default.conf to ~/.ipa/default.conf
+  synchronize:
+    src: /etc/ipa/default.conf
+    dest: "{{ ansible_env.HOME }}/.ipa/default.conf"
+    perms: no
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Configure wait_for_dns variable
+  lineinfile:
+    dest: "{{ ansible_env.HOME }}/.ipa/default.conf"
+    regexp: wait_for_dns=
+    line: wait_for_dns=5
+    state: present
+
+- name: Copy /etc/httpd/alias/*.db files to ~/.ipa/alias
+  synchronize:
+    src: "{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.ipa/alias/"
+    perms: no
+  delegate_to: "{{ inventory_hostname }}"
+  with_fileglob: /etc/httpd/alias/*.db
+  become: True
+
+- name: Copy /etc/httpd/alias/pwdfile.txt ~/.ipa/alias/.pwd
+  synchronize:
+    src: /etc/httpd/alias/pwdfile.txt
+    dest: "{{ ansible_env.HOME }}/.ipa/.pwd"
+    perms: no
+  delegate_to: "{{ inventory_hostname }}"
+  become: True
+
+- name: Ensure ~/.ipa/alias/* have correct permissions
+  file:
+    name: "{{ ansible_env.HOME }}/.ipa"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    recurse: yes
+
+- name: Set up ~/.ipa/.dmpw
+  lineinfile:
+    dest: "{{ ansible_env.HOME }}/.ipa/.dmpw"
+    line: "{{ freeipa_ds_pass }}"
+    create: yes
+    state: present
+    mode: 0600
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+
+- name: Run make version-update
+  command: make version-update
+
+- name: Obtain admin Kerberos ticket
+  shell: "echo {{ freeipa_admin_pass }} | kinit admin"

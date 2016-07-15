@@ -1,0 +1,11 @@
+---
+
+- name: Uninstall FreeIPA, if exists
+  command: ipa-server-install --uninstall -U
+  become: True
+
+- name: Uninstall packages
+  yum:
+    name: freeipa-*
+    state: absent
+  become: True
