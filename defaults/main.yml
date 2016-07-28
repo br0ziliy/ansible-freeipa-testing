@@ -4,7 +4,7 @@
 # Role variables
 freeipa_do_uninstall: True
 freeipa_src_dir: "{{ ansible_env.HOME }}/freeipa"
-freeipa_git_url: "git://"
+freeipa_git_url: "https://git.fedorahosted.org/git/freeipa.git"
 freeipa_git_revision: "master"
 freeipa_ds_pass: "Secret123"
 freeipa_admin_pass: "Secret123"

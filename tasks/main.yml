@@ -3,9 +3,9 @@
 - name: Ensure we're running as non-root
   fail:
     msg: "You have to run this role with a non-root user"
-  when: ansible_env.USER == root
+  when: ansible_env.USER == 'root'
 
 - include: uninstall.yml
-  when: freeipa_do_uninstall is True
+  when: freeipa_do_uninstall == 'True'
 - include: install.yml
 - include: configure.yml

@@ -5,6 +5,7 @@
     force: yes
     repo: "{{ freeipa_git_url }}"
     version: "{{ freeipa_git_revision }}"
+    accept_hostkey: True
 
 - name: Ensure old RPMs and build directory absent
   file:
@@ -26,9 +27,10 @@
 
 - name: Install built RPMs
   dnf:
-    name: "{{ freeipa_src_dir }}/dist/rpms/*"
+    name: "{{ item }}"
     state: installed
   become: True
+  with_fileglob: "{{ freeipa_src_dir }}/dist/rpms/*"
 
 - name: Install FreeIPA itself
   command: "ipa-server-install {{ freeipa_install_params }}"

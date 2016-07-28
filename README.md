@@ -59,7 +59,7 @@ popd
 - make adjustments to `hosts` and `site.yml` files to fit your environment
 - run the playbook:
 
-    ansible-playbook -v -D -i ~/freeipa-testing/hosts ~/freeipa-testing/site.yml
+    ansible-playbook -u ${USER} -v -D -i ~/freeipa-testing/hosts ~/freeipa-testing/site.yml
 
 License
 -------
