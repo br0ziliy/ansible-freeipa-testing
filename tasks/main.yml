@@ -5,7 +5,9 @@
     msg: "You have to run this role with a non-root user"
   when: ansible_env.USER == 'root'
 
+- debug: var=freeipa_do_uninstall
+
 - include: uninstall.yml
-  when: freeipa_do_uninstall == 'True'
+  when: freeipa_do_uninstall == true
 - include: install.yml
 - include: configure.yml

@@ -1,8 +1,14 @@
 ---
 
+- name: Check ipa-server-install existense
+  stat:
+    path: /usr/bin/ipa-server-install
+  register: freeipa_installed
+
 - name: Uninstall FreeIPA, if exists
   command: ipa-server-install --uninstall -U
   become: True
+  when: freeipa_installed.stat.exists == true
 
 - name: Uninstall packages
   yum:

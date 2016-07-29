@@ -13,3 +13,6 @@ freeipa_admin_pass: "Secret123"
 freeipa_domain: "dom-{{ ansible_hostname.split('-')[1] }}.{{ ansible_domain }}"
 freeipa_realm: "{{ freeipa_domain|upper }}"
 freeipa_install_params: "-a {{ freeipa_admin_pass }} -p {{ freeipa_ds_pass }} -n {{ freeipa_domain }} -r {{ freeipa_realm }} --setup-dns --auto-forwarders --auto-reverse -U"
+
+# Debugging
+freeipa_build_rpms: True

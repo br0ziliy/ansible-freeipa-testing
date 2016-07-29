@@ -1,4 +1,14 @@
 ---
+- name: Reconfigure primary interface
+  command: dhclient ens3
+  become: True
+
+- name: Update system
+  dnf:
+    name: '*'
+    state: latest
+  become: True
+
 - name: Get (or update) FreeIPA sources
   git:
     dest: "{{ freeipa_src_dir }}"
@@ -7,30 +17,35 @@
     version: "{{ freeipa_git_revision }}"
     accept_hostkey: True
 
-- name: Ensure old RPMs and build directory absent
-  file:
-    name: "{{ freeipa_src_dir }}/{{ item }}"
-    state: absent
-  with_items:
-    - dist/
-    - rpmbuild/
-
 - name: Install dependencies
   command: "dnf builddep --spec {{ freeipa_src_dir }}/freeipa.spec.in -y"
   become: True
+
+- name: Cleanup FreeIPA source tree
+  command: make distclean
+  args:
+    chdir: "{{ freeipa_src_dir }}"
+    removes: "{{ freeipa_src_dir }}/dist"
+  when: freeipa_build_rpms == true
 
 - name: Build FreeIPA RPMs
   command: make rpms
   args:
     chdir: "{{ freeipa_src_dir }}"
     creates: "{{ freeipa_src_dir }}/dist/rpms"
+  when: freeipa_build_rpms == true
 
+- name: Gather list of built RPMs
+  find:
+    paths: "{{ freeipa_src_dir }}/dist/rpms/"
+    patterns: "*.rpm"
+  register: freeipa_rpms
+
+# Must use "command" here since "dnf" Ansible module does not support
+# installation of fileglobs
 - name: Install built RPMs
-  dnf:
-    name: "{{ item }}"
-    state: installed
+  shell: dnf install {{ freeipa_src_dir }}/dist/rpms/* -y --allowerasing
   become: True
-  with_fileglob: "{{ freeipa_src_dir }}/dist/rpms/*"
 
 - name: Install FreeIPA itself
   command: "ipa-server-install {{ freeipa_install_params }}"
